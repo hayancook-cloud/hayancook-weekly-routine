@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!-- iPhone에서 요일별 주간 루틴을 관리하고 홈 화면에 설치하는 화면이다. -->
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F5F6F2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="하얀쿡 루틴">
+  <meta name="description" content="촬영부터 공구까지, 하얀쿡의 한 주를 가볍게 정리하는 루틴 앱.">
+  <meta name="robots" content="noindex, nofollow">
+  <title>하얀쿡 주간 루틴</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div><p class="eyebrow">HAYANCOOK · ROUTINE</p><h1><span id="page-title">나의 한 주</span><span class="title-dot">.</span></h1></div>
+      <button class="icon-button" id="settings-open" aria-label="설정과 설치 안내">☰</button>
+    </header>
+    <nav class="routine-tabs" aria-label="루틴 선택">
+      <button data-view="mine" aria-pressed="true">내 루틴</button>
+      <button data-view="orig" aria-pressed="false">기존 루틴</button>
+    </nav>
+    <section class="summary" id="summary" aria-label="주간 작업 수량">
+      <div class="summary-heading"><span id="summary-label">이번 주 작업</span><button id="generate-open">수량 조정 <span aria-hidden="true">↗</span></button></div>
+      <div id="stats" class="stats"></div>
+      <p>매주 반복하는 나만의 작업 리듬.</p>
+    </section>
+    <div class="view-controls"><p id="schedule-label">요일별로 보기</p><div class="period-tabs" role="group" aria-label="일정 보기 방식"><button id="day-toggle" aria-pressed="true">요일별</button><button id="week-toggle" aria-pressed="false">한 주</button><button id="month-toggle" aria-pressed="false">한 달</button></div></div>
+    <nav id="days" class="days" aria-label="요일 선택"></nav>
+    <section id="month-calendar" class="month-calendar" aria-label="월간 일정" hidden>
+      <div class="month-heading"><button id="month-prev" class="icon-button" aria-label="이전 달">‹</button><h2 id="month-title" aria-live="polite"></h2><button id="month-next" class="icon-button" aria-label="다음 달">›</button><button id="month-today">이번 달</button></div>
+      <p class="month-tools">매주 반복되는 루틴이에요.</p>
+      <div class="month-weekdays" aria-hidden="true"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>
+      <div id="month-grid" class="month-grid" role="group" aria-label="날짜 선택"></div>
+      <p class="calendar-hint">날짜를 누르면 아래에서 자세한 일정을 볼 수 있어요.</p>
+    </section>
+    <section id="schedule" class="schedule" aria-label="일정 목록"></section>
+    <p class="storage-note" id="storage-note">바꾼 일정은 이 기기에 자동 저장돼요.</p>
+  </main>
+  <footer class="bottom-bar"><button id="add" class="primary"><span aria-hidden="true">＋</span> 일정 추가</button></footer>
+  <dialog id="editor" class="sheet" aria-labelledby="editor-title">
+    <div class="sheet-head"><h2 id="editor-title">일정 추가</h2><button class="icon-button" data-close aria-label="닫기">×</button></div>
+    <form id="event-form">
+      <p id="editor-repeat-note" class="subtle" hidden></p>
+      <label>할 일<input id="event-name" maxlength="160" required placeholder="예. 콘텐츠 1 촬영" autocomplete="off"></label>
+      <label>요일<select id="event-day"></select></label>
+      <div class="time-fields"><label>시작<select id="event-from"></select></label><label>종료<select id="event-to"></select></label></div>
+      <fieldset><legend>작업 종류</legend><div id="kinds" class="kinds"></div></fieldset>
+      <p id="event-error" class="error" role="alert" hidden></p>
+      <p id="overlap-note" class="subtle" hidden>같은 시간에 다른 일정이 있어요. 겹쳐서 저장할 수도 있어요.</p>
+      <div class="editor-actions"><button type="button" id="delete" class="danger" hidden>삭제</button><button type="submit" class="primary">일정 저장</button></div>
+    </form>
+  </dialog>
+  <dialog id="generator" class="sheet" aria-labelledby="generator-title">
+    <div class="sheet-head"><h2 id="generator-title">이번 주 작업 수량</h2><button class="icon-button" data-close aria-label="닫기">×</button></div>
+    <p class="subtle">촬영·편집·업로드 시간을 자동으로 배치해요.</p>
+    <div id="counters" class="counters"></div>
+    <p class="notice">다시 만들면 내 루틴에서 직접 추가하거나 수정한 일정도 새 일정으로 바뀌어요.</p>
+    <button id="generate" class="primary full">루틴 다시 만들기</button>
+  </dialog>
+  <dialog id="settings" class="sheet" aria-labelledby="settings-title">
+    <div class="sheet-head"><h2 id="settings-title">설정과 사용 안내</h2><button class="icon-button" data-close aria-label="닫기">×</button></div>
+    <section class="settings-section"><h3>홈 화면에서 바로 열기</h3><ol><li>이 주소를 iPhone의 Safari에서 열어요.</li><li>공유 버튼을 누르고 <strong>홈 화면에 추가</strong>를 선택해요.</li><li>앱으로 열기 옵션이 보이면 켠 뒤 추가해요.</li></ol><p id="offline-status" class="subtle">오프라인 사용 준비 중이에요.</p></section>
+    <section class="settings-section"><h3>내 일정 보관하기</h3><p class="subtle">일정은 이 기기에 저장돼요. 기기를 바꾸거나 웹사이트 데이터를 지우기 전에 백업해 두세요. 다른 기기와 자동으로 동기화되지는 않아요.</p><div class="backup-actions"><button id="export" class="secondary">백업 저장</button><button id="import" class="secondary">백업 가져오기</button></div><input id="backup-file" type="file" accept="application/json,.json" hidden></section>
+    <section class="settings-section"><h3>루틴 사용법</h3><p class="subtle">일정 카드를 누르면 수정할 수 있어요. 자정을 넘는 시간은 ‘다음 날’로 표시해요. 내 루틴과 기존 루틴은 각각 수정하고 저장할 수 있어요.</p></section>
+  </dialog>
+  <dialog id="confirm" class="confirm-dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title"></h2><p id="confirm-message"></p>
+    <div class="confirm-actions"><button id="confirm-cancel" class="secondary">취소</button><button id="confirm-ok" class="primary">확인</button></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <noscript>이 앱을 사용하려면 Safari 설정에서 JavaScript를 켜 주세요.</noscript>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
